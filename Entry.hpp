@@ -7,14 +7,14 @@ class Entry{
 	public:
 		Entry(std::string firstName, std::string lastName, std::string phoneNum);
 		~Entry();
-		const char* getFirstName();
-		const char* getLastName();
-		const char* getPhoneNum();
+		std::string getFirstName();
+		std::string getLastName();
+		std::string getPhoneNum();
 		
 	private:
-		const char* firstName;
-		const char* lastName;
-		const char* phoneNum;
+		std::string firstName;
+		std::string lastName;
+		std::string phoneNum;
 		
 		
 };

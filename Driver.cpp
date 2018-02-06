@@ -11,7 +11,7 @@ int main(int argc, char** argv){
 	}
 	
 	PhoneDirectory *phonebook = new PhoneDirectory(argv[1]);
-	
+	phonebook->searchDirectory("Com Miller");
 	delete phonebook;
 	
 	return 0;
