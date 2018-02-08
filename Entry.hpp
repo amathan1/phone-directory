@@ -14,9 +14,7 @@ class Entry{
 	private:
 		std::string firstName;
 		std::string lastName;
-		std::string phoneNum;
-		
-		
+		std::string phoneNum;		
 };
 
 #endif

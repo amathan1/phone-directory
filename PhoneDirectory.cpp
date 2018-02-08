@@ -118,3 +118,111 @@ void PhoneDirectory::deleteEntry(char* name){
 void PhoneDirectory::insertEntry(char* name, char* phone_number){
 
 }
+
+
+std::vector<std::string> 
+PhoneDirectory::merge(std::vector<std::string> arr1, std::vector<std::string> arr2)
+{
+	/* Recursive helper function */
+	std::vector<std::string> arr;
+
+	int c_i = arr1.size();
+	int c_j = arr2.size();
+	int i = 0, j = 0;
+
+	while ((i < c_i) || (j < c_j))
+	{
+		if (i == c_i)
+		{
+			arr.push_back(arr2[j]);
+			j++;
+		}
+		else if (j == c_j)
+		{
+			arr.push_back(arr1[i]);
+			i++;
+		}
+		else if (arr1[i].compare(arr2[j]) < 0)
+		{
+			arr.push_back(arr1[i]);
+			i++;
+		}
+		else
+		{
+			arr.push_back(arr2[j]);
+			j++;
+		}
+	}
+	return arr;
+}
+
+
+std::vector<std::string> 
+PhoneDirectory::merge_sort(std::vector<std::string> arr0)
+{	
+	/*Mergesort: Takes a vector of string as input(Pass by value)
+	 Returns sorted vector of strings */
+
+	int size = arr0.size();
+	if (size < 2)	return arr0;
+
+	int med = size / 2;
+	std::vector<std::string> arr1, arr2, out;
+
+	for(int i = 0; i < size; ++i)
+		(i < med)?arr1.push_back(arr0[i]):arr2.push_back(arr0[i]);
+
+	arr1 = merge_sort(arr1);
+	arr2 = merge_sort(arr2);
+	out = merge(arr1, arr2);
+
+	return out;
+}
+
+
+int 
+PhoneDirectory::partition(std::vector<int> &arr, int low, int high)
+{
+	/* Helper for quicksort */
+	int pivot, i, j, temp;
+	i = low - 1;
+	pivot = rand() % high;
+
+	while (pivot < low)
+		pivot = rand() % high;
+
+	for (j = low; j < high; ++j)
+	{
+		if (arr[j] < arr[pivot]){
+			i++;
+			temp = arr[i];
+			arr[i] = arr[j];
+			arr[j] = temp;
+		}
+	}
+
+	i++;
+	temp = arr[i];
+	arr[i] = arr[pivot];
+	arr[pivot] = temp;
+
+	return i;
+}
+
+
+
+int 
+PhoneDirectory::quick_sort(std::vector<int> &arr, int low, int high)
+{
+	/* Quicksort: Pass by reference vector of integers and by value 0 and vector.size() */
+	
+	int pivot;
+	if (high - low < 2)	return 0;
+
+	pivot = partition(arr, low, high);
+
+	quick_sort(arr, low, pivot);
+	quick_sort(arr, pivot, high);
+
+	return 0;
+}

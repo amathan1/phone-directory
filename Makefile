@@ -1,7 +1,7 @@
 make: all
 
 all: Driver.o PhoneDirectory.o Entry.o
-	g++ -g Driver.o PhoneDirectory.o Entry.o -o phoneDirectory
+	g++ -g Driver.o PhoneDirectory.o Entry.o -o phoneDirectory -std=c++11
 
 Driver.o: Driver.cpp
 	g++ -g -c Driver.cpp
