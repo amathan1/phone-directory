@@ -29,6 +29,9 @@ class PhoneDirectory{
 		int quick_sort(std::vector<int> &arr, int low, int high);
 		int partition(std::vector<std::int> &arr, int low, int high);
 
+		// Filters the sorted array. 
+		int correct_them(std::vector<int> &args);
+
 	private:
 		std::vector<Entry*> entries;
 };

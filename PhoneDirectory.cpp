@@ -36,7 +36,29 @@ void PhoneDirectory::create(std::string filePath){
 	}	
 }
 
-void PhoneDirectory::sortDirectory(){
+void 
+PhoneDirectory::sortDirectory()
+{
+
+	// Sort people with lastname as the key
+	std::vector<std::string> last_names;
+	std::vector<int> args;
+
+	for (int i = 0; i < this->entries.size(); i++)
+	{
+		last_names.push_back(this->entries->at(i).getLastName());
+		args.push_back(i);
+	}
+
+	merge_sort(last_names, args);
+
+	std::vector<Entry> new_entries = new std::vector<Entry>;
+
+	correct_them(args);
+
+	for (int i = 0; i < args.size(); i++)
+
+
 
 }
 
@@ -121,7 +143,7 @@ void PhoneDirectory::insertEntry(char* name, char* phone_number){
 
 
 std::vector<std::string> 
-PhoneDirectory::merge(std::vector<std::string> arr1, std::vector<std::string> arr2)
+PhoneDirectory::merge(std::vector<std::string> &arr1, std::vector<std::string> &arr2, std::vector<int> &arg1, std::vector<int> &arg2, std::vector<int> &arg)
 {
 	/* Recursive helper function */
 	std::vector<std::string> arr;
@@ -135,21 +157,25 @@ PhoneDirectory::merge(std::vector<std::string> arr1, std::vector<std::string> ar
 		if (i == c_i)
 		{
 			arr.push_back(arr2[j]);
+			arg.push_back(arg2[j]);
 			j++;
 		}
 		else if (j == c_j)
 		{
 			arr.push_back(arr1[i]);
+			arg.push_back(arg2[i]);
 			i++;
 		}
 		else if (arr1[i].compare(arr2[j]) < 0)
 		{
 			arr.push_back(arr1[i]);
+			arg.push_back(arg1[i]);
 			i++;
 		}
 		else
 		{
 			arr.push_back(arr2[j]);
+			arg.push_back(arg2[j]);
 			j++;
 		}
 	}
@@ -158,7 +184,7 @@ PhoneDirectory::merge(std::vector<std::string> arr1, std::vector<std::string> ar
 
 
 std::vector<std::string> 
-PhoneDirectory::merge_sort(std::vector<std::string> arr0)
+PhoneDirectory::merge_sort(std::vector<std::string> arr0, std::vector<int> &args)
 {	
 	/*Mergesort: Takes a vector of string as input(Pass by value)
 	 Returns sorted vector of strings */
@@ -168,13 +194,20 @@ PhoneDirectory::merge_sort(std::vector<std::string> arr0)
 
 	int med = size / 2;
 	std::vector<std::string> arr1, arr2, out;
+	std::vector<int> arg1, arg2, arg_o;
 
 	for(int i = 0; i < size; ++i)
+	{
 		(i < med)?arr1.push_back(arr0[i]):arr2.push_back(arr0[i]);
+		(i < med)?arg1.push_back(args[i]):arg2.push_back(args[i]);
+	}
 
-	arr1 = merge_sort(arr1);
-	arr2 = merge_sort(arr2);
-	out = merge(arr1, arr2);
+	arr1 = merge_sort(arr1, arg1);
+	arr2 = merge_sort(arr2, arg2);
+	out = merge(arr1, arr2, arg1, arg2, arg_o);
+
+	args.clear();
+	for (int i = 0; i < arg_o.size(); i++)	args.push_back(arg_o[i])
 
 	return out;
 }
@@ -191,7 +224,13 @@ PhoneDirectory::partition(std::vector<int> &arr, int low, int high)
 	while (pivot < low)
 		pivot = rand() % high;
 
-	for (j = low; j < high; ++j)
+	temp = arr[pivot];
+	arr[pivot] = arr[high - 1];
+	arr[high-1] = temp;
+	pivot = high -1;
+
+
+	for (j = low; j < high - 1; ++j)
 	{
 		if (arr[j] < arr[pivot]){
 			i++;
@@ -215,7 +254,7 @@ int
 PhoneDirectory::quick_sort(std::vector<int> &arr, int low, int high)
 {
 	/* Quicksort: Pass by reference vector of integers and by value 0 and vector.size() */
-	
+
 	int pivot;
 	if (high - low < 2)	return 0;
 
@@ -225,4 +264,11 @@ PhoneDirectory::quick_sort(std::vector<int> &arr, int low, int high)
 	quick_sort(arr, pivot, high);
 
 	return 0;
+}
+
+
+int
+correct_them(std::vector<int> &args)
+{
+	string temp_s = 
 }
