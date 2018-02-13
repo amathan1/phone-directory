@@ -5,16 +5,16 @@
 
 class Entry{
 	public:
-		Entry(std::string firstName, std::string lastName, std::string phoneNum);
+		Entry(std::string firstName, std::string lastName, long phoneNum);
 		~Entry();
 		std::string getFirstName();
 		std::string getLastName();
-		std::string getPhoneNum();
+		long getPhoneNum();
 		
 	private:
 		std::string firstName;
 		std::string lastName;
-		std::string phoneNum;		
+		long phoneNum;		
 };
 
 #endif

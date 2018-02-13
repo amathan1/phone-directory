@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdlib>
 #include <string>
 #include <vector>
 #include <fstream>
@@ -18,7 +19,7 @@ PhoneDirectory::~PhoneDirectory(){
 
 void PhoneDirectory::create(std::string filePath){
 	std::ifstream in;
-	in.open(filePath);
+	in.open(filePath.c_str());
 	std::string token;
 	std::getline(in, token);
 	while(in){
@@ -42,23 +43,24 @@ PhoneDirectory::sortDirectory()
 
 	// Sort people with lastname as the key
 	std::vector<std::string> last_names;
+	std::vector<int> in;
 	std::vector<int> args;
 
 	for (int i = 0; i < this->entries.size(); i++)
 	{
-		last_names.push_back(this->entries->at(i).getLastName());
-		args.push_back(i);
+		last_names.push_back(this->entries[i]->getLastName());
+		in.push_back(i);
 	}
 
-	merge_sort(last_names, args);
+	last_names = merge_sort(last_names, in);
 
-	std::vector<Entry> new_entries = new std::vector<Entry>;
+	std::vector<Entry*> new_entries;
 
 	correct_them(args);
 
-	for (int i = 0; i < args.size(); i++)
+	for (int i = 0; i < args.size(); i++);
 
-
+	return;
 
 }
 
@@ -184,12 +186,13 @@ PhoneDirectory::merge(std::vector<std::string> &arr1, std::vector<std::string> &
 
 
 std::vector<std::string> 
-PhoneDirectory::merge_sort(std::vector<std::string> arr0, std::vector<int> &args)
+PhoneDirectory::merge_sort(std::vector<std::string> &arr0, std::vector<int> &args)
 {	
 	/*Mergesort: Takes a vector of string as input(Pass by value)
 	 Returns sorted vector of strings */
 
 	int size = arr0.size();
+	
 	if (size < 2)	return arr0;
 
 	int med = size / 2;
@@ -207,26 +210,33 @@ PhoneDirectory::merge_sort(std::vector<std::string> arr0, std::vector<int> &args
 	out = merge(arr1, arr2, arg1, arg2, arg_o);
 
 	args.clear();
-	for (int i = 0; i < arg_o.size(); i++)	args.push_back(arg_o[i])
+	for (int i = 0; i < arg_o.size(); i++)	args.push_back(arg_o[i]);
 
 	return out;
 }
 
 
+
 int 
-PhoneDirectory::partition(std::vector<int> &arr, int low, int high)
+PhoneDirectory::partition(std::vector<int> &arr, int low, int high, std::vector<int> &args)
 {
 	/* Helper for quicksort */
-	int pivot, i, j, temp;
+	int pivot, i, j, temp, temp2;
 	i = low - 1;
 	pivot = rand() % high;
 
 	while (pivot < low)
 		pivot = rand() % high;
 
+	// For the elements
 	temp = arr[pivot];
 	arr[pivot] = arr[high - 1];
 	arr[high-1] = temp;
+	// For indices
+	temp2 = args[pivot];
+	args[pivot] = args[high-1];
+	args[high-1] = temp2;
+	
 	pivot = high -1;
 
 
@@ -234,16 +244,26 @@ PhoneDirectory::partition(std::vector<int> &arr, int low, int high)
 	{
 		if (arr[j] < arr[pivot]){
 			i++;
+			
 			temp = arr[i];
 			arr[i] = arr[j];
 			arr[j] = temp;
+
+			temp2 = args[i];
+			args[i] = args[j];
+			args[i] = args[j];
 		}
 	}
 
 	i++;
+	// Move pivot back to its place
 	temp = arr[i];
 	arr[i] = arr[pivot];
 	arr[pivot] = temp;
+	//For indices
+	temp2 = args[i];
+	args[i] = args[pivot];
+	args[pivot] = temp2;
 
 	return i;
 }
@@ -251,24 +271,153 @@ PhoneDirectory::partition(std::vector<int> &arr, int low, int high)
 
 
 int 
-PhoneDirectory::quick_sort(std::vector<int> &arr, int low, int high)
+PhoneDirectory::quick_sort(std::vector<int> &arr, int low, int high, std::vector<int> &args)
 {
 	/* Quicksort: Pass by reference vector of integers and by value 0 and vector.size() */
 
 	int pivot;
 	if (high - low < 2)	return 0;
 
-	pivot = partition(arr, low, high);
+	pivot = partition(arr, low, high, args);
 
-	quick_sort(arr, low, pivot);
-	quick_sort(arr, pivot, high);
+	quick_sort(arr, low, pivot, args);
+	quick_sort(arr, pivot, high, args);
 
 	return 0;
 }
 
 
-int
-correct_them(std::vector<int> &args)
+
+int 
+PhoneDirectory::correctHelper(std::vector< std::vector<int> > same, std::vector< std::vector<std::string> > same_str)
 {
-	string temp_s = 
+
+	std::vector <int> args1; 
+	int cur_i = 0;
+	int cur_j = 0;
+
+	for (int i = 0; i < same.size(); i++)
+	{
+		args1.clear();
+		std::string temp_s = this->entries[same[i][0]]->getFirstName();
+		bool hot = false;
+		int start, end;
+
+		for (int j = 0; j < same[i].size(); j++)
+		{
+			if (this->entries[same[i][j]]->getFirstName() == temp_s)
+			{
+					hot = true;
+					args1.push_back(same[i][j]-1);
+					start = j - 1;
+			}
+
+			else
+			{
+				if (hot == true)
+				{
+					end = j;
+					args1.push_back(same[i][j]-1);
+					hot = false;
+				}
+				temp_s = this->entries[same[i][j]]->getFirstName();
+			}
+		}
+		
+		int sz = (int)args1.size();
+		
+		if (sz > 0)
+		{
+			std::vector<long> phNos;
+			for (int k = 0; k < sz; k++)
+				phNos.push_back(this->entries[args1[k]]->getPhoneNum());
+			
+			quick_sort(phNos, 0, sz, args1);
+
+			for (int k = 0; k < sz; k++)
+				same[i][start+k] = args1[k];
+		}
+	}
+	return 0;
+}
+
+
+
+int
+PhoneDirectory::correct_them(std::vector<int> &args)
+{
+	std::string temp_s;
+	std::vector <int> points;
+	std::vector< std::vector<int> > same;
+	std::vector< std::vector<std::string> > same_str;
+	int cur_idx = 0;
+	bool hot = false;
+	int start;
+
+	temp_s = this->entries[args[0]]->getLastName();
+
+	{	// Finds same first names
+		for (int i = 0; i < args.size(); i++)
+		{
+			if (this->entries[i]->getLastName() == temp_s)
+			{
+				if (same.size()==cur_idx)
+					same.resize(same.size() + 1);
+				
+				same[cur_idx].push_back(args[i]-1);
+
+				if (hot==false)
+					start = i;
+				
+				hot = true;
+				
+			}
+
+			else
+			{
+				if (hot == true)
+				{
+					same[cur_idx].push_back(args[i]-1);
+					points.push_back(start);
+					hot = false;
+					cur_idx++;
+				}
+				temp_s = this->entries[args[i]]->getLastName();
+			}
+		}
+	}
+
+	same_str.resize(same.size());
+
+	for (int i = 0; i < same.size(); i++)
+	{
+		for (int j = 0; j < same[i].size(); j++)
+		{
+			same_str[i].push_back(this->entries[j]->getFirstName());
+		}
+	}
+
+	for (int i = 0; i < same_str.size(); i++)
+		same_str[i] = merge_sort(same_str[i], same[i]);
+
+	cur_idx = 0;
+	int i = 0;
+
+	correctHelper(same, same_str);
+
+	while (i < args.size())
+	{
+		if (i==points[cur_idx])
+		{
+			for (int j = 0; j < same[cur_idx].size(); j++)
+			{
+				args[i] = same[cur_idx][j];
+				i++;
+			}
+		}
+
+		else
+			i++;
+	}
+	return 0;
 }

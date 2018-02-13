@@ -1,6 +1,7 @@
 #include "Entry.hpp"
 #include "PhoneDirectory.hpp"
 #include <iostream>
+#include <cstdlib>
 #include <string>
 #include <sstream>
 
