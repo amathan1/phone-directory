@@ -26,8 +26,8 @@ class PhoneDirectory{
 		std::vector<std::string> merge_sort(std::vector<std::string> &arr0, std::vector<int> &args);
 		
 		// Randomized Quick sort and its helper
-		int quick_sort(std::vector<int> &arr, int low, int high, std::vector<int> &args);
-		int partition(std::vector<int> &arr, int low, int high, std::vector<int> &args);
+		int quick_sort(std::vector<long> &arr, int low, int high, std::vector<int> &args);
+		int partition(std::vector<long> &arr, int low, int high, std::vector<int> &args);
 
 		// Filters the sorted array. 
 		int correct_them(std::vector<int> &args);

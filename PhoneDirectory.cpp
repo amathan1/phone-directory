@@ -58,7 +58,13 @@ PhoneDirectory::sortDirectory()
 
 	correct_them(args);
 
-	for (int i = 0; i < args.size(); i++);
+	for (int i = 0; i < args.size(); i++)
+		new_entries.push_back(this->entries[args[i]]);
+
+	//for (int i = 0; i < new_entries.size(); i++)
+		//args[i] = new_entries[i];
+
+	new_entries.clear();
 
 	return;
 
@@ -218,7 +224,7 @@ PhoneDirectory::merge_sort(std::vector<std::string> &arr0, std::vector<int> &arg
 
 
 int 
-PhoneDirectory::partition(std::vector<int> &arr, int low, int high, std::vector<int> &args)
+PhoneDirectory::partition(std::vector<long> &arr, int low, int high, std::vector<int> &args)
 {
 	/* Helper for quicksort */
 	int pivot, i, j, temp, temp2;
@@ -271,7 +277,7 @@ PhoneDirectory::partition(std::vector<int> &arr, int low, int high, std::vector<
 
 
 int 
-PhoneDirectory::quick_sort(std::vector<int> &arr, int low, int high, std::vector<int> &args)
+PhoneDirectory::quick_sort(std::vector<long> &arr, int low, int high, std::vector<int> &args)
 {
 	/* Quicksort: Pass by reference vector of integers and by value 0 and vector.size() */
 
