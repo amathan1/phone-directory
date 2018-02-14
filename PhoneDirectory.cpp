@@ -57,15 +57,18 @@ PhoneDirectory::sortDirectory()
 
 	
 	last_names = merge_sort(last_names);
-	for(int i = 0; i < last_names.size(); i++) std::cout << last_names[i] << std::endl;
+	
 	std::vector<Entry*> new_entries;
+	
+	for (int i = 0; i < last_names.size(); i++)
+		args.push_back(last_names[i]->idx);
 
 	correct_them(args);
 
 	for (int i = 0; i < args.size(); i++){
 		new_entries.push_back(this->entries[args[i]]);
 	}
-	
+
 	for(int i= 0; i < new_entries.size(); i++){
 		entries[i] = new_entries[i];
 	}
@@ -148,9 +151,11 @@ void PhoneDirectory::searchDirectory(char* name, int low, int high){
 }
 
 void PhoneDirectory::deleteEntry(char* name){
-	for(int i = 0; i < this->entries.size(); i++){
-		if(std::string(name).compare(entries[i]->getFirstName() +  " " + entries[i]->getLastName()) == 0) 
+	for(int i = this->entries.size()-1; i >= 0; i++){
+		if(std::string(name).compare(entries[i]->getFirstName() +  " " + entries[i]->getLastName()) == 0) {
 			entries.erase(entries.begin() + i--);
+			break;
+		}
 	}
 }
 
@@ -187,7 +192,7 @@ PhoneDirectory::merge(std::vector<PhoneDirectory::Pair*> &arr1, std::vector<Phon
 			arr.push_back(arr1[i]);
 			i++;
 		}
-		else if (arr1[i]->last_name.compare(arr2[j]->last_name) < 0)
+		else if (arr1[i]->last_name.compare(arr2[j]->last_name) <= 0)
 		{
 			arr.push_back(arr1[i]);
 			i++;
@@ -233,45 +238,49 @@ int
 PhoneDirectory::partition(std::vector<long> &arr, int low, int high, std::vector<int> &args)
 {
 	/* Helper for quicksort */
-	int pivot, i, j, temp, temp2;
+	int pivot, i, j, temp2;
+	long temp;
 	i = low - 1;
 	pivot = rand() % high;
 
 	while (pivot < low)
 		pivot = rand() % high;
 
+
 	// For the elements
 	temp = arr[pivot];
 	arr[pivot] = arr[high - 1];
 	arr[high-1] = temp;
+
 	// For indices
 	temp2 = args[pivot];
 	args[pivot] = args[high-1];
 	args[high-1] = temp2;
 	
-	pivot = high -1;
 
+	pivot = high -1;
 
 	for (j = low; j < high - 1; ++j)
 	{
 		if (arr[j] < arr[pivot]){
 			i++;
-			
 			temp = arr[i];
 			arr[i] = arr[j];
 			arr[j] = temp;
 
 			temp2 = args[i];
 			args[i] = args[j];
-			args[i] = args[j];
+			args[j] = temp2;
 		}
 	}
 
 	i++;
+	
 	// Move pivot back to its place
 	temp = arr[i];
 	arr[i] = arr[pivot];
 	arr[pivot] = temp;
+	
 	//For indices
 	temp2 = args[i];
 	args[i] = args[pivot];
@@ -289,7 +298,6 @@ PhoneDirectory::quick_sort(std::vector<long> &arr, int low, int high, std::vecto
 
 	int pivot;
 	if (high - low < 2)	return 0;
-
 	pivot = partition(arr, low, high, args);
 
 	quick_sort(arr, low, pivot, args);
@@ -301,50 +309,64 @@ PhoneDirectory::quick_sort(std::vector<long> &arr, int low, int high, std::vecto
 
 
 int 
-PhoneDirectory::correctHelper(std::vector< std::vector<int> > same, std::vector< std::vector<std::string> > same_str)
+PhoneDirectory::correctHelper(std::vector< std::vector<int> > &same, std::vector< std::vector<std::string> > &same_str)
 {
 
 	std::vector <int> args1; 
 	int cur_i = 0;
 	int cur_j = 0;
+	std::string temp_s;
+	int start, end;
+	int i, j;
 
-	for (int i = 0; i < same.size(); i++)
+	for (i = 0; i < same.size(); i++)
 	{
 		args1.clear();
-		std::string temp_s = this->entries[same[i][0]]->getFirstName();
-		bool hot = false;
-		int start, end;
+		temp_s = same_str[i][0];
+		int	hot = false;
 
-		for (int j = 0; j < same[i].size(); j++)
+		for (j = 1; j < same[i].size(); j++)
 		{
-			if (this->entries[same[i][j]]->getFirstName() == temp_s)
+			if (same_str[i][j] == temp_s)
 			{
+					(hot==false)?start=j-1:start=start;
 					hot = true;
-					args1.push_back(same[i][j]-1);
-					start = j - 1;
+					args1.push_back(same[i][j-1]);
 			}
 
 			else
-			{
+			{	
 				if (hot == true)
 				{
 					end = j;
-					args1.push_back(same[i][j]-1);
+					args1.push_back(same[i][j-1]);
 					hot = false;
 				}
-				temp_s = this->entries[same[i][j]]->getFirstName();
 			}
+			temp_s = same_str[i][j];
+
 		}
+
+		if (hot==true)
+		{
+			end = j;
+			args1.push_back(same[i][j-1]);
+			hot = false;
+		}
+
 		
 		int sz = (int)args1.size();
 		
 		if (sz > 0)
 		{
 			std::vector<long> phNos;
-			for (int k = 0; k < sz; k++)
+
+			for (int k = 0; k < sz; k++){
 				phNos.push_back(this->entries[args1[k]]->getPhoneNum());
-			
+			}
+
 			quick_sort(phNos, 0, sz, args1);
+
 
 			for (int k = 0; k < sz; k++)
 				same[i][start+k] = args1[k];
@@ -364,22 +386,23 @@ PhoneDirectory::correct_them(std::vector<int> &args)
 	std::vector< std::vector<std::string> > same_str;
 	int cur_idx = 0;
 	bool hot = false;
-	int start;
+	int start, i;
 
 	temp_s = this->entries[args[0]]->getLastName();
 
-	{	// Finds same first names
-		for (int i = 0; i < args.size(); i++)
+	{	// Finds same last names
+		for (i = 1; i < args.size(); i++)
 		{
-			if (this->entries[i]->getLastName() == temp_s)
+			if (this->entries[args[i]]->getLastName() == temp_s)
 			{
+
 				if (same.size()==cur_idx)
 					same.resize(same.size() + 1);
 				
-				same[cur_idx].push_back(args[i]-1);
+				same[cur_idx].push_back(args[i-1]);
 
 				if (hot==false)
-					start = i;
+					start = i-1;
 				
 				hot = true;
 				
@@ -389,31 +412,44 @@ PhoneDirectory::correct_them(std::vector<int> &args)
 			{
 				if (hot == true)
 				{
-					same[cur_idx].push_back(args[i]-1);
+					same[cur_idx].push_back(args[i-1]);
 					points.push_back(start);
 					hot = false;
 					cur_idx++;
 				}
-				temp_s = this->entries[args[i]]->getLastName();
 			}
+			temp_s = this->entries[args[i]]->getLastName();
+		}
+
+		if (hot==true)
+		{
+			same[cur_idx].push_back(args[i-1]);
+			points.push_back(start);
+			hot = false;
 		}
 	}
 
 	same_str.resize(same.size());
 
+
 	std::vector< std::vector<PhoneDirectory::Pair*> > forCorrection;
+	forCorrection.resize(same.size());
 
 	for (int i = 0; i < same.size(); i++)
 	{
 		for (int j = 0; j < same[i].size(); j++)
 		{
-			// same_str[i].push_back(this->entries[j]->getFirstName());
+			same_str[i].push_back(this->entries[j]->getFirstName());
 			forCorrection[i].push_back(new PhoneDirectory::Pair{entries[same[i][j]]->getFirstName(), same[i][j]});
 		}
 	}
 
+
 	for (int i = 0; i < forCorrection.size(); i++)
+	{
 		forCorrection[i] = merge_sort(forCorrection[i]);
+	}
+
 
 	for (int i = 0; i < forCorrection.size(); i++)
 	{
@@ -425,7 +461,7 @@ PhoneDirectory::correct_them(std::vector<int> &args)
 	}
 	
 	cur_idx = 0;
-	int i = 0;
+	i = 0;
 
 	correctHelper(same, same_str);
 
@@ -438,6 +474,7 @@ PhoneDirectory::correct_them(std::vector<int> &args)
 				args[i] = same[cur_idx][j];
 				i++;
 			}
+			cur_idx++;
 		}
 
 		else

@@ -1,4 +1,6 @@
 #include "Entry.hpp"
+#define _GLIBCXX_USE_C99 1
+
 
 Entry::Entry(std::string firstName, std::string lastName, std::string phoneNum){
 	this->firstName = std::string(firstName); 

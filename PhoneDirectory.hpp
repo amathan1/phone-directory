@@ -32,7 +32,7 @@ class PhoneDirectory{
 
 		// Filters the sorted array. 
 		int correct_them(std::vector<int> &args);
-		int correctHelper(std::vector< std::vector<int> > same, std::vector< std::vector<std::string> > same_str);
+		int correctHelper(std::vector< std::vector<int> > &same, std::vector< std::vector<std::string> > &same_str);
 	private:
 		std::vector<Entry*> entries;
 };

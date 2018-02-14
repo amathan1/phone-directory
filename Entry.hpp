@@ -1,5 +1,4 @@
 #ifndef _ENTRY_HPP_
-
 #define _ENTRY_HPP_
 #include<string>
 
