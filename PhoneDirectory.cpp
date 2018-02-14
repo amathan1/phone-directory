@@ -7,6 +7,11 @@
 #include <string.h>
 #include "PhoneDirectory.hpp"
 
+struct PhoneDirectory::Pair{
+	std::string last_name;
+	int idx;
+};
+
 PhoneDirectory::PhoneDirectory(std::string filePath){
 	create(filePath);
 }
@@ -31,7 +36,7 @@ void PhoneDirectory::create(std::string filePath){
 		getline(strStream, firstName, ' ');
 		getline(strStream, lastName, ',');
 		getline(strStream, pNum, ',');
-		this->entries.push_back(new Entry(firstName, lastName, pNum));
+		this->entries.push_back(new Entry(firstName, lastName, pNum.substr(1, pNum.length())));
 		//std::cout << "name: " << lastName << "\nnumber: " << pNum << std::endl;
 		std::getline(in, token);
 	}	
@@ -42,28 +47,29 @@ PhoneDirectory::sortDirectory()
 {
 
 	// Sort people with lastname as the key
-	std::vector<std::string> last_names;
-	std::vector<int> in;
+	std::vector<PhoneDirectory::Pair*> last_names;
 	std::vector<int> args;
 
 	for (int i = 0; i < this->entries.size(); i++)
 	{
-		last_names.push_back(this->entries[i]->getLastName());
-		in.push_back(i);
+		last_names.push_back(new PhoneDirectory::Pair{this->entries[i]->getLastName(), i});
 	}
 
-	last_names = merge_sort(last_names, in);
-
+	
+	last_names = merge_sort(last_names);
+	for(int i = 0; i < last_names.size(); i++) std::cout << last_names[i] << std::endl;
 	std::vector<Entry*> new_entries;
 
 	correct_them(args);
 
-	for (int i = 0; i < args.size(); i++)
+	for (int i = 0; i < args.size(); i++){
 		new_entries.push_back(this->entries[args[i]]);
-
-	//for (int i = 0; i < new_entries.size(); i++)
-		//args[i] = new_entries[i];
-
+	}
+	
+	for(int i= 0; i < new_entries.size(); i++){
+		entries[i] = new_entries[i];
+	}
+	
 	new_entries.clear();
 
 	return;
@@ -142,19 +148,28 @@ void PhoneDirectory::searchDirectory(char* name, int low, int high){
 }
 
 void PhoneDirectory::deleteEntry(char* name){
-
+	for(int i = 0; i < this->entries.size(); i++){
+		if(std::string(name).compare(entries[i]->getFirstName() +  " " + entries[i]->getLastName()) == 0) 
+			entries.erase(entries.begin() + i--);
+	}
 }
 
 void PhoneDirectory::insertEntry(char* name, char* phone_number){
-
+	std::stringstream strStream;
+	strStream << std::string(name);
+	std::string firstName;
+	std::string lastName;
+	getline(strStream, firstName, ' ');
+	getline(strStream, lastName);
+	this->entries.push_back(new Entry(firstName, lastName, std::string(phone_number)));
 }
 
 
-std::vector<std::string> 
-PhoneDirectory::merge(std::vector<std::string> &arr1, std::vector<std::string> &arr2, std::vector<int> &arg1, std::vector<int> &arg2, std::vector<int> &arg)
+std::vector<PhoneDirectory::Pair*> 
+PhoneDirectory::merge(std::vector<PhoneDirectory::Pair*> &arr1, std::vector<PhoneDirectory::Pair*> &arr2)
 {
 	/* Recursive helper function */
-	std::vector<std::string> arr;
+	std::vector<PhoneDirectory::Pair*> arr;
 
 	int c_i = arr1.size();
 	int c_j = arr2.size();
@@ -165,25 +180,21 @@ PhoneDirectory::merge(std::vector<std::string> &arr1, std::vector<std::string> &
 		if (i == c_i)
 		{
 			arr.push_back(arr2[j]);
-			arg.push_back(arg2[j]);
 			j++;
 		}
 		else if (j == c_j)
 		{
 			arr.push_back(arr1[i]);
-			arg.push_back(arg2[i]);
 			i++;
 		}
-		else if (arr1[i].compare(arr2[j]) < 0)
+		else if (arr1[i]->last_name.compare(arr2[j]->last_name) < 0)
 		{
 			arr.push_back(arr1[i]);
-			arg.push_back(arg1[i]);
 			i++;
 		}
 		else
 		{
 			arr.push_back(arr2[j]);
-			arg.push_back(arg2[j]);
 			j++;
 		}
 	}
@@ -191,8 +202,8 @@ PhoneDirectory::merge(std::vector<std::string> &arr1, std::vector<std::string> &
 }
 
 
-std::vector<std::string> 
-PhoneDirectory::merge_sort(std::vector<std::string> &arr0, std::vector<int> &args)
+std::vector<PhoneDirectory::Pair*> 
+PhoneDirectory::merge_sort(std::vector<PhoneDirectory::Pair*> &arr0)
 {	
 	/*Mergesort: Takes a vector of string as input(Pass by value)
 	 Returns sorted vector of strings */
@@ -202,21 +213,16 @@ PhoneDirectory::merge_sort(std::vector<std::string> &arr0, std::vector<int> &arg
 	if (size < 2)	return arr0;
 
 	int med = size / 2;
-	std::vector<std::string> arr1, arr2, out;
-	std::vector<int> arg1, arg2, arg_o;
+	std::vector<PhoneDirectory::Pair*> arr1, arr2, out;
 
 	for(int i = 0; i < size; ++i)
 	{
 		(i < med)?arr1.push_back(arr0[i]):arr2.push_back(arr0[i]);
-		(i < med)?arg1.push_back(args[i]):arg2.push_back(args[i]);
 	}
 
-	arr1 = merge_sort(arr1, arg1);
-	arr2 = merge_sort(arr2, arg2);
-	out = merge(arr1, arr2, arg1, arg2, arg_o);
-
-	args.clear();
-	for (int i = 0; i < arg_o.size(); i++)	args.push_back(arg_o[i]);
+	arr1 = merge_sort(arr1);
+	arr2 = merge_sort(arr2);
+	out = merge(arr1, arr2);
 
 	return out;
 }
@@ -395,17 +401,29 @@ PhoneDirectory::correct_them(std::vector<int> &args)
 
 	same_str.resize(same.size());
 
+	std::vector< std::vector<PhoneDirectory::Pair*> > forCorrection;
+
 	for (int i = 0; i < same.size(); i++)
 	{
 		for (int j = 0; j < same[i].size(); j++)
 		{
-			same_str[i].push_back(this->entries[j]->getFirstName());
+			// same_str[i].push_back(this->entries[j]->getFirstName());
+			forCorrection[i].push_back(new PhoneDirectory::Pair{entries[same[i][j]]->getFirstName(), same[i][j]});
 		}
 	}
 
-	for (int i = 0; i < same_str.size(); i++)
-		same_str[i] = merge_sort(same_str[i], same[i]);
+	for (int i = 0; i < forCorrection.size(); i++)
+		forCorrection[i] = merge_sort(forCorrection[i]);
 
+	for (int i = 0; i < forCorrection.size(); i++)
+	{
+		for (int j = 0; j < forCorrection[i].size(); j++)
+		{
+			same_str[i][j] = forCorrection[i][j]->last_name;
+			same[i][j] = forCorrection[i][j]->idx;
+		}
+	}
+	
 	cur_idx = 0;
 	int i = 0;
 

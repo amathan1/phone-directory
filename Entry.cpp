@@ -18,7 +18,9 @@ std::string Entry::getLastName(){
 	return this->lastName;
 }
 
-std::string Entry::getPhoneNum(){
-	return this->phoneNum;
+long Entry::getPhoneNum(){
+	return std::stol(phoneNum.substr(1, 3), NULL, 10)*10000000 + 
+		std::stol(phoneNum.substr(5, 3), NULL, 10)*10000 
+		+ std::stol(phoneNum.substr(9, 4), NULL, 10);
 }
 		

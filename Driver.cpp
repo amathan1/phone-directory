@@ -12,7 +12,13 @@ int main(int argc, char** argv){
 	}
 	
 	PhoneDirectory *phonebook = new PhoneDirectory(argv[1]);
-	phonebook->searchDirectory("Com Miller");
+	phonebook->deleteEntry("Tom Miller");
+	phonebook->searchDirectory("Tom Miller");
+	phonebook->searchDirectory("Jason Smith");
+	phonebook->insertEntry("Tom Piller", "(123)123-4444");
+	phonebook->searchDirectory("Tom Piller");
+	phonebook->sortDirectory();
+	
 	delete phonebook;
 	
 	return 0;
