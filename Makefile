@@ -1,16 +1,16 @@
 make: all
 
 all: Driver.o PhoneDirectory.o Entry.o
-	g++ -g Driver.o PhoneDirectory.o Entry.o -o phoneDirectory
+	g++ -g sbailey6_amathan1_driver.o sbailey6_amathan1_phone_directory.o sbailey6_amathan1_entry.o -o sbailey6_amathan1_phone_directory.out #-std=c++11
 
-Driver.o: Driver.cpp
-	g++ -g -c Driver.cpp
+Driver.o: sbailey6_amathan1_driver.cpp
+	g++ -g -c sbailey6_amathan1_driver.cpp
 
-PhoneDirectory.o: PhoneDirectory.cpp
-	g++ -g -c PhoneDirectory.cpp -std=c++11
+PhoneDirectory.o: sbailey6_amathan1_phone_directory.cpp
+	g++ -g -c sbailey6_amathan1_phone_directory.cpp
 
-Entry.o: Entry.cpp
-	g++ -g -c Entry.cpp -std=c++11
+Entry.o: sbailey6_amathan1_entry.cpp
+	g++ -g -c sbailey6_amathan1_entry.cpp
 
-clean:
-	rm -f *.o phoneDirectory
+clean: 
+	rm -f *.o sbailey6_amathan1_phone_directory.out
